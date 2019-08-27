@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Početna strana</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="javascript/bootstrap.min.js"></script>
+    <link rel="icon" href="slike-favicon/icons8-pi-16.png" type="image/png">
+    <link rel="stylesheet" href="stilovi/bootstrap.css">
+    <link rel="stylesheet" href="stilovi/stilovi.css">
+    <style type="text/css">
+      body {
+        background-color: #e4e7ed;
+      }
+      #unos-ucenika-okvir {
+        visibility: hidden;
+        width: 950px;
+        border: 2px solid;
+        border-radius: 15px;
+        box-shadow: 7px 7px 15px rgba(0, 0, 0, 0.6);
+        margin-bottom: 30px;
+        padding: 0px 20px 20px 20px;
+      }
+      .top-dugmici {
+        font-size: 15px;
+      }
+      #gen-raz-naslov {
+        float: left;
+        position: sticky;
+        left: 23px;
+      }
+      #horizontalna-linija {
+        clear: left;
+      }
+    </style>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker3.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
+  </head>
+  <body>
+    <!-- Glavni "div" okvir -->
+    <div class="container-fluid">
+      <!-- Navigacija -->
+      <nav class="navbar navbar-expand navbar-fixed-top" style="background: linear-gradient(to right, #173CA5 0%, #0DABDF 100%)">
+        <!-- Početna strana -->
+        <span class="navbar-brand"><a href="pocetna_strana.html" style="color: white; margin-left: 50px; font-family: Centaur; font-size: 25px; text-decoration: none">Početna strana</a></span>
+        <!-- Najbolje generacije / razredi / učenici -->
+        <div class="btn-group" role="group" style="margin-top: 8px; margin-left: 152px">
+          <button type="button" class="top-dugmici btn btn-light" style="color: black" disabled><b>Najbolje</b></button>
+          <button type="button" class="top-dugmici btn btn-secondary"><a href="najbolje_generacije.html" style="color: black" target="_self">generacije</a></button><button type="button" class="top-dugmici btn btn-secondary" style="cursor: default">|</button>
+          <button type="button" class="top-dugmici btn btn-secondary"><a href="najbolji_razredi.html" style="color: black" target="_self">razredi</a></button><button type="button" class="top-dugmici btn btn-secondary" style="cursor: default">|</button>
+          <button type="button" class="top-dugmici btn btn-secondary"><a href="najbolji_ucenici.html" style="color: black" target="_self">učenici</a></button>
+        </div>
+        <!-- Pretraga -->
+        <div class="form-inline pull-right" style="margin-top: 8px; margin-right: 65px">
+          <form action="pretraga.php" method="get">
+            <input class="form-control mr-sm-2" type="text" id="poljePretragaUcenika" name="pretraga_vrednost" placeholder="Nađi učenika..." aria-label="Search">
+            <input class="btn btn-outline-success my-2 my-sm-0" type="submit" id="dgmPretragaUcenika" value="Traži" disabled="disabled" onclick="poljePretragaPrazno()">
+          </form>
+        </div>
+      </nav>
+
+      <!-- Prostor za naslov -->
+      <h2 id="gen-raz-naslov" class="text-center"></h2>
+      <hr id="horizontalna-linija">
+
+      <!-- Levi "div" okvir -->
+      <div style="float: left">
+        <div class="form-inline">
+          <div id="dugmici">
+            <input style="width: 115px" type="text" id="generacija" class="form-control text-center" name="generacija">
+            <input type="button" id="dgmDodajGen" class="odustani btn btn-primary" value="Dodaj generaciju">
+          </div>
+          <div id="ispis-poruke" class="text-center" style="background-color: red; color: white; margin-top: 5px; width: 250px;"></div>
+        </div>
+        <br>
+        <div id="spisak-generacija" class="panel-group" id="accordion" style="width: 250px"></div>
+      </div>
+
+      <!-- Srednji "div" okvir -->
+      <div style="float: left; margin-left: 90px">
+        <div id="unos-ucenika-okvir" style="background-color: #FFFFFF"></div>
+        <div id="ispis-poruke-upis" class="text-center" style="margin-bottom: 15px"></div>
+        <!-- Tabela za prikaz učenika -->
+        <!-- uz određene modifikacije (videti funkcije "prikazUcenikaGen" i "prikazUcenikaRaz"), ista tabela je korišćena za prikaz učenika i na nivou generacije i na nivou razreda -->
+        <table id="tabela-ucenici" class="table table-bordered table-condensed table-hover" style="visibility: hidden">
+          <thead style="background-color: #e6f0f2">
+            <tr id="uzglavlje-oceneRaz">
+              <th class="text-center" style="vertical-align: middle">#</th>
+              <th style="width: 90px;"></th>
+              <th class="text-center" style="width: 150px; vertical-align: middle">Učenik</th>
+              <th class="text-center" style="width: 165px; vertical-align: middle">Ime oca / majke</th>
+              <th class="text-center" style="width: 120px; vertical-align: middle">Datum rođenja</th>
+              <th class="text-center" style="width: 135px; vertical-align: middle">Mesto rođenja</th>
+              <th class="text-center" style="width: 200px; vertical-align: middle">Beleška</th>
+            </tr>
+          </thead>
+          <tbody id="telo-tabelaUcenici" style="background-color: #FFFFFF"></tbody>
+        </table>
+        <div id="slika-GenRaz-okvir" style="margin-top: 35px" class="text-center"></div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      (function() {
+        generacije_listanje();
+        $('[data-toggle="tooltip"]').tooltip();
+        $('#poljePretragaUcenika').val("");
+      })();
+
+      // funkcija koja izlistava generacije
+      function generacije_listanje() {
+        $.getJSON("baza/upiti.php", {
+          upit: "generacije_listing"
+        }, function(podaci) {
+          $.each(podaci, function(kljuc, vrednost) {
+            $('#spisak-generacija').append('<div style="margin-bottom: 10px" class="panel panel-default"><div class="panel-heading"><h4 class="panel-title text-center"><a href="#" onclick="prikazUcenikaGen('+vrednost.id+', '+vrednost.generacija+')" class="odustani" data-toggle="collapse" data-parent="#accordion" href="#collapse'+vrednost.id+'">'+vrednost.generacija+'</a><span style="margin-left: 2px" id="dugmiciGen" class="pull-right btn btn-xs btn-default" data-toggle="tooltip" title="Obriši" onclick="brisanjeGen('+vrednost.id+')">&#128465;</span><span style="margin-left: 20px" id="dugmiciGen" class="odustani pull-right btn btn-xs btn-default" data-toggle="tooltip" title="Izmeni" onclick="izmena_generacije('+vrednost.id+'); prikazUcenikaGen('+vrednost.id+', '+vrednost.generacija+')">&#128393;</span><span style="margin-left: 2px" id="dugmiciGen" class="pull-right btn btn-xs btn-default" data-toggle="tooltip" title="Dodaj / izmeni fotografiju" onclick="prikazUcenikaGen('+vrednost.id+', '+vrednost.generacija+'); dodavanje_izmena_fotografije_gen('+vrednost.id+', '+vrednost.generacija+')">&#128247;</span><span style="margin-left: 2px" id="dugmiciGen" class="pull-right btn btn-xs btn-default" data-toggle="tooltip" title="Dodaj učenika" onclick="dodavanje_ucenika_u_gen('+vrednost.id+', '+vrednost.generacija+')">&#128100;</span><span style="margin-left: 2px" id="dugmiciGen" class="odustani pull-right btn btn-xs btn-default" data-toggle="tooltip" title="Dodaj razred" onclick="dodavanje_razreda('+vrednost.id+', '+vrednost.generacija+'); prikazUcenikaGen('+vrednost.id+', '+vrednost.generacija+')">&#128101;</span></h4></div><div id="collapse'+vrednost.id+'" class="panel-collapse collapse"></div></div>');
+            $('#unos-ucenika-okvir').css("visibility", "hidden");
+            razredi_listanje(vrednost.id, vrednost.generacija);
+          });
+        });
+      }
+
+      // funkcija koja u okviru pojedinačne generacije izlistava pripadajuće razrede
+      function razredi_listanje(idGeneracije, nazivGeneracije) {
+        $.getJSON("baza/upiti.php", {
+          upit: "razredi_listing",
+          id: idGeneracije
+        }, function(podaci) {
+          $.each(podaci, function(kljuc, vrednost) {
+            $('#collapse'+idGeneracije).append('<div class="panel-body"><button onclick="prikazUcenikaRaz('+vrednost.id+', '+nazivGeneracije+')" style="width: 57px; margin-left: 48px" class="odustani btn btn-success">'+vrednost.odeljenje+'</button><span style="margin-left: 2px; margin-top: 5.5px" class="pull-right btn btn-xs btn-default" data-toggle="tooltip" title="Obriši" onclick="brisanjeRaz('+vrednost.id+', '+idGeneracije+', '+nazivGeneracije+')">&#128465;</span><span style="margin-left: 20px; margin-top: 5.5px" class="odustani pull-right btn btn-xs btn-default" data-toggle="tooltip" title="Izmeni" onclick="izmena_razreda('+vrednost.id+', '+idGeneracije+', '+nazivGeneracije+'); prikazUcenikaRaz('+vrednost.id+', '+nazivGeneracije+')">&#128393;</span><span style="margin-left: 2px; margin-top: 5.5px" id="dugmiciGen" class="pull-right btn btn-xs btn-default" data-toggle="tooltip" title="Dodaj / izmeni fotografiju" onclick="prikazUcenikaRaz('+vrednost.id+', '+nazivGeneracije+'); dodavanje_izmena_fotografije_raz('+vrednost.id+', '+idGeneracije+', '+nazivGeneracije+')">&#128247;</span></div>');
+          });
+          $('#collapse'+idGeneracije).append('<div style="height: 40px" class="panel-footer text-center"><span style="font-size: large" class="btn btn-xs" onclick="akordion_zatvaranje('+idGeneracije+')">&#9650;</span></div>');
+        });
+      }
+
+      // funkcija koja služi za zatvaranje trenutno otvorenog accordion-a
+      function akordion_zatvaranje(idGeneracije) {
+        $('#collapse'+idGeneracije).collapse('hide');
+        $('.panel-title > a').attr('data-toggle', 'collapse');
+      }
+
+      // funkcija koja u okviru pojedinačne generacije izlistava pripadajuće razrede unutar "select" polja
+      function razred_odabir(idGeneracije) {
+        $('.razred_odabir').empty();
+        $('.razred_odabir').append('<option value="-">---</option>');
+        $.getJSON("baza/upiti.php", {
+          upit: "razredi_listing",
+          id: idGeneracije
+        }, function(podaci) {
+          $.each(podaci, function(kljuc, vrednost) {
+            $('.razred_odabir').append('<option value="'+vrednost.id+'">'+vrednost.odeljenje+'</option>');
+          });
+        });
+      }
+
+      // funkcija koja omogućava da se naredna funkcija ($('#dgmDodajGen').click(function() {})), pored levog klika, može izvršiti i klikom na ENTER
+      $("#generacija").keyup(function(event) {
+        if(event.keyCode === 13) {
+          $("#dgmDodajGen").click();
+        }
+      });
+
+      // funkcija koja klikom na dugme (id = "dgmDodajGen") dodaje generaciju u bazu
+      $('#dgmDodajGen').click(function() {
+        if($('#generacija').val() != "") {
+          $.getJSON("baza/upiti.php", {
+            upit: "generacija_dodavanje",
+            generacija: $('#generacija').val()
+          }, function(podaci) {
+            if(podaci.poruka == "duplikat") {
+              $('#ispis-poruke').html("Generacija '" +$('#generacija').val()+ "' već postoji.");
+              $('#generacija').focus();
+            } else if(podaci.poruka == "ok") {
+              $('#ispis-poruke-upis').empty();
+              $('#ispis-poruke').empty();
+              $('#generacija').val("");
+              $('#spisak-generacija').empty();
+              $('#generacija').blur();
+              generacije_listanje();
+            }
+          });
+        }
+      });
+
+      // funkcija za izmenu generacije
+      function izmena_generacije(idGeneracije) {
+        $('#ispis-poruke').empty();
+        $('#dugmici').empty();
+        $('#dugmici').append('<input style="width: 75px" type="text" id="izmeni_generaciju" class="form-control text-center" name="izmeni_generaciju"><input style="margin-left: 3px; margin-right: 3px" type="button" id="dgmIzmeniGen" class="odustani btn btn-primary" value="Izmeni generaciju"><a href="pocetna_strana.html"><input type="button" value="&#8629;" class="btn btn-secondary" data-toggle="tooltip" title="Povratak"></a>');
+        $('#izmeni_generaciju').focus();
+        $.getJSON("baza/upiti.php", {
+          upit: "generacije_listingID",
+          id: idGeneracije
+        }, function(podaci) {
+            $('#izmeni_generaciju').val(podaci[0].generacija);
+            // funkcija koja omogućava da se naredna funkcija ($('#dgmIzmeniGen').click(function(event) {})), pored levog klika, može izvršiti i klikom na ENTER
+            $("#izmeni_generaciju").keyup(function(event) {
+              if(event.keyCode === 13) {
+                $("#dgmIzmeniGen").click();
+              }
+            });
+            // funkcija koja klikom na dugme (id = "dgmIzmeniGen") menja naziv generacije
+            $('#dgmIzmeniGen').click(function(event) {
+              event.preventDefault();
+              if($('#izmeni_generaciju').val() == "") {
+                $('#ispis-poruke').css({"background-color": "red", "color": "white"}).html("Niste uneli generaciju.");
+                $('#izmeni_generaciju').focus();
+              } else {
+                $('#ispis-poruke').empty();
+                $.getJSON("baza/upiti.php", {
+                  upit: "generacija_izmena",
+                  id: idGeneracije,
+                  generacija: $('#izmeni_generaciju').val()
+                }, function(podaci) {
+                  if(podaci.poruka == "ok") {
+                    $('#ispis-poruke').css({"background-color": "green", "color": "white"}).html("Podaci su uspešno izmenjeni.");
+                    $('#spisak-generacija').empty();
+                    generacije_listanje();
+                    $('#izmeni_generaciju').blur();
+                  } else if(podaci.poruka == "duplikat") {
+                    $('#ispis-poruke').css({"background-color": "red", "color": "white"}).html("Generacija '" +$('#izmeni_generaciju').val()+ "' već postoji.");
+                    $('#izmeni_generaciju').focus();
+                  }
+                });
+              }
+            });
+        });
+      }
+
+      // funkcija koja briše generaciju iz baze
+      function brisanjeGen(idGeneracije) {
+        if(confirm("Da li ste sigurni?")) {
+          $('#unos-ucenika-okvir').empty();
+          $('#unos-ucenika-okvir').css("visibility", "hidden");
+          $.getJSON("baza/upiti.php", {
+            upit: "generacija_brisanje",
+            id: idGeneracije
+          }, function(podaci) {
+            $('#ispis-poruke').empty();
+            $('#spisak-generacija').empty();
+            $('#ispis-poruke-upis').empty();
+            $('#generacija').val("");
+            generacije_listanje();
+          });
+        }
+      }
+
+      // funkcija za dodavanje razreda
+      function dodavanje_razreda(idGeneracije, nazivGeneracije) {
+        $('#ispis-poruke').empty();
+        $('#dugmici').empty();
+        $('#dugmici').append('<div class="input-group"><input type="text" style="width: 52px; border-right: 0px; padding-left: 3px; padding-right: 3px; background-color: #FFFFFF" class="form-control" value="'+nazivGeneracije+' /" readonly><input style="width: 52px; border-left: 0px; padding-left: 2px" type="text" id="dodaj_razred" class="form-control text-center" name="dodaj_razred"></div><input style="margin-left: 3px; margin-right: 3px" type="button" id="dgmDodajRaz" class="btn btn-primary" value="Dodaj razred"><a href="pocetna_strana.html"><input type="button" value="&#8629;" class="btn btn-secondary" data-toggle="tooltip" title="Povratak"></a>');
+        $('#dodaj_razred').focus();
+        // funkcija koja omogućava da se naredna funkcija ($('#dgmDodajRaz').click(function() {})), pored levog klika, može izvršiti i klikom na ENTER
+        $("#dodaj_razred").keyup(function(event) {
+          if(event.keyCode === 13) {
+            $("#dgmDodajRaz").click();
+          }
+        });
+        // funkcija koja klikom na dugme (id = "dgmDodajRaz") dodaje razred odgovarajućoj generaciji
+        $('#dgmDodajRaz').click(function() {
+          if($('#dodaj_razred').val() == "") {
+            $('#ispis-poruke').css({"background-color": "red", "color": "white"}).html("Niste uneli razred.");
+            $('#dodaj_razred').focus();
+          } else {
+            $('#ispis-poruke').empty();
+            $.getJSON("baza/upiti.php", {
+              upit: "razred_dodavanje",
+              id: idGeneracije,
+              razred: $('#dodaj_razred').val()
+            }, function(podaci) {
+              if(podaci.poruka == "ok") {
+                $('#dodaj_razred').val("");
+                $('#collapse'+idGeneracije).empty();
+                razredi_listanje(idGeneracije, nazivGeneracije);
+                razred_odabir(idGeneracije);
+                $('#dodaj_razred').focus();
+              } else if(podaci.poruka == "duplikat") {
+                $('#ispis-poruke').css({"background-color": "red", "color": "white"}).html("Razred '" +$('#dodaj_razred').val()+ "' već postoji u generaciji '" +nazivGeneracije+ "'.");
+                $('#dodaj_razred').focus();
+              }
+            });
+          }
+        });
+      }
+
+      // funkcija za izmenu razreda
+      function izmena_razreda(idRazreda, idGeneracije, nazivGeneracije) {
+        $('#ispis-poruke-upis').empty();
+        $('#ispis-poruke').empty();
+        $('#dugmici').empty();
+        $('#dugmici').append('<div class="input-group"><input type="text" style="width: 49.5px; border-right: 0px; padding-left: 3px; padding-right: 3px; background-color: #FFFFFF" class="form-control" value="'+nazivGeneracije+' /" readonly><input style="width: 49.5px; border-left: 0px; padding-left: 2px" type="text" id="izmeni_razred" class="form-control text-center" name="izmeni_razred"></div><input style="margin-left: 3px; margin-right: 3px" type="button" id="dgmIzmeniRaz" class="odustani btn btn-primary" value="Izmeni razred"><a href="pocetna_strana.html"><input type="button" value="&#8629;" class="btn btn-secondary" data-toggle="tooltip" title="Povratak"></a>');
+        $('#izmeni_razred').focus();
+        $.getJSON("baza/upiti.php", {
+          upit: "razredi_listingID",
+          id: idRazreda
+        }, function(podaci) {
+          $('#izmeni_razred').val(podaci[0].odeljenje);
+          // funkcija koja omogućava da se naredna funkcija ($('#dgmIzmeniRaz').click(function(event) {})), pored levog klika, može izvršiti i klikom na ENTER
+          $("#izmeni_razred").keyup(function(event) {
+            if(event.keyCode === 13) {
+              $("#dgmIzmeniRaz").click();
+            }
+          });
+          // funkcija koja klikom na dugme (id = "dgmIzmeniRaz") menja naziv razreda
+          $('#dgmIzmeniRaz').click(function(event) {
+            event.preventDefault();
+            if($('#izmeni_razred').val() == "") {
+              $('#ispis-poruke').css({"background-color": "red", "color": "white"}).html("Niste uneli razred.");
+              $('#izmeni_razred').focus();
+            } else {
+              $('#ispis-poruke').empty();
+              $.getJSON("baza/upiti.php", {
+                upit: "razred_izmena",
+                idRaz: idRazreda,
+                idGen: idGeneracije,
+                odeljenje: $('#izmeni_razred').val()
+              }, function(podaci) {
+                if(podaci.poruka == "ok") {
+                  $('#ispis-poruke').empty();
+                  $('#ispis-poruke').css({"background-color": "green", "color": "white"}).html("Podaci su uspešno izmenjeni.");
+                  $('#collapse'+idGeneracije).empty();
+                  razredi_listanje(idGeneracije, nazivGeneracije);
+                  razred_odabir(idGeneracije);
+                  $('#izmeni_razred').blur();
+                } else if(podaci.poruka == "duplikat") {
+                  $('#ispis-poruke').css({"background-color": "red", "color": "white"}).html("Razred '" +$('#izmeni_razred').val()+ "' već postoji u generaciji '" +nazivGeneracije+ "'.");
+                  $('#izmeni_razred').focus();
+                }
+              });
+            }
+          });
+        });
+      }
+
+      // funkcija koja briše razred iz odgovarajuće generacije
+      function brisanjeRaz(idRazreda, idGeneracije, nazivGeneracije) {
+        if(confirm("Da li ste sigurni?")) {
+          $('#unos-ucenika-okvir').empty();
+          $('#unos-ucenika-okvir').css("visibility", "hidden");
+          // prikazUcenikaGen(idGeneracije, nazivGeneracije);
+          $.getJSON("baza/upiti.php", {
+            upit: "razred_brisanje",
+            id: idRazreda
+          }, function(podaci) {
+            // window.scrollTo(0, 0);
+            $('#collapse'+idGeneracije).empty();
+            $('#ispis-poruke-upis').empty();
+            razredi_listanje(idGeneracije, nazivGeneracije);
+          });
+        }
+      }
+
+      // funkcija za dodavanje učenika u generaciju
+      function dodavanje_ucenika_u_gen(idGeneracije, nazivGeneracije) {
+        prikazUcenikaGen(idGeneracije, nazivGeneracije);
+        $('#unos-ucenika-okvir').css("visibility", "visible");
+        $('#unos-ucenika-okvir').empty();
+        $('#unos-ucenika-okvir').append('<h2 class="text-center">Unos učenika u generaciju <b>'+nazivGeneracije+'</b></h2><hr><div id="ispis-poruke-ucen" class="text-center" style="margin-bottom: 15px"></div><div class="container"><form id="frmDodavanjeUcenika" enctype="multipart/form-data"><div class="row" style="margin-left: 35px"><div class="form-group col-md-3" style="margin-right: -100px"><label for="ime">Ime<span style="color: red">*</span>:</label><input type="hidden" id="idGeneracija" name="idGeneracija"><input style="width: 150px" type="text" id="ime" class="form-control text-right prazno-polje" name="ime"></div><div class="form-group col-md-3" style="margin-right: -100px"><label for="prezime">Prezime<span style="color: red">*</span>:</label><input style="width: 150px" type="text" id="prezime" class="form-control text-right prazno-polje" name="prezime"></div><div class="form-group col-md-3" style="margin-right: -50px"><label for="ime_oca_majke">Ime oca / majke:</label><input style="width: 200px" type="text" id="ime_oca_majke" class="form-control text-right prazno-polje" name="ime_oca_majke"></div><div class="form-group col-md-3"><label for="datum_rodjenja">Datum rođenja<span style="color: red">*</span>:</label><div class="input-group input-append date" id="dateRangePicker" style="width: 150px"><input type="text" id="datum_rodjenja" name="datum_rodjenja" class="form-control text-center prazno-polje"><span class="input-group-addon add-on"><span>&#128197;</span></span></div></div></div><div class="row" style="margin-left: 35px"><div class="form-group col-md-3" style="margin-right: -100px"><label for="mesto_rodjenja">Mesto rođenja:</label><input style="width: 150px" type="text" id="mesto_rodjenja" class="form-control text-right prazno-polje" name="mesto_rodjenja"></div><div class="form-group col-md-3" style="margin-right: -100px"><label for="imeSlike">Fotografija:</label><input style="width: 150px" type="file" id="imeSlike" class="form-control text-right prazno-polje" name="imeSlike"></div><div class="form-group col-md-3" style="margin-right: -100px"><label for="beleska">Beleška:</label><textarea style="width: 380px" type="text" id="beleska" class="form-control prazno-polje" name="beleska" rows="4"></textarea></div></div></div><hr><div class="text-right"><input type="button" id="dgmDodajUcenGen" class="btn btn-primary" value="Dodaj" style="margin-right: 10px"><input type="button" class="odustani" class="btn btn-default" value="Odustani"></div></form>');
+        $('#idGeneracija').val(idGeneracije); // skrivenom input-u (id = "idGeneracija") dodeljujemo vrednost id-a trenutno izabrane generacije (idGeneracije). ovaj korak nam je značajan zbog podataka (konkretno, parametra "idGeneracija") koje prosleđujemo fajlu "dodavanje_ucenika.php" (linija koda: $idGeneracija = $_POST["idGeneracija"];)
+        // funkcija koja klikom na dugme (id = "dgmDodajUcenGen") submit-uje formu (id = "frmDodavanjeUcenika")
+        $('#dgmDodajUcenGen').click(function(event) {
+          event.preventDefault();
+          if($('#ime').val() == "" || $('#prezime').val() == "" || $('#datum_rodjenja').val() == "") {
+            $('#ime').css("border", "");
+            $('#prezime').css("border", "");
+            $('#datum_rodjenja').css("border", "");
+            $('#ispis-poruke-ucen').css({"background-color": "red", "color": "white"}).html("* Obavezno polje.");
+            if($('#ime').val() == "") {
+              $('#ime').css("border", "1px solid red");
+            }
+            if($('#prezime').val() == "") {
+              $('#prezime').css("border", "1px solid red");
+            }
+            if($('#datum_rodjenja').val() == "") {
+              $('#datum_rodjenja').css("border", "1px solid red");
+            }
+          } else {
+            $('#ime').css("border", "");
+            $('#prezime').css("border", "");
+            $('#datum_rodjenja').css("border", "");
+            $('#frmDodavanjeUcenika').submit();
+          }
+        });
+        // funkcija koja submit-uje formu (id = "frmDodavanjeUcenika") tako što prikuplja podatke iz forme (vrednosti input-a) i prosleđuje ih ajax-u
+        $('#frmDodavanjeUcenika').on('submit',(function(e) {
+          e.preventDefault();
+          var formData = new FormData(this);
+          $.ajax({
+            type: 'POST',
+            url: 'baza/dodavanje_ucenika.php',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success:function(data){
+              $('#ispis-poruke-ucen').css({"background-color": "green", "color": "white"}).html("Učenik je uspešno dodat.");
+              $('.prazno-polje').val("");
+              prikazUcenikaGen(idGeneracije, nazivGeneracije);
+            },
+            error: function(data){
+              console.log("error");
+              console.log(data);
+            }
+          });
+        }));
+        // funkcija koja klikom na dugme (id = "odustani") zatvara okvir za unos učenika
+        $('.odustani').click(function() {
+          $('#unos-ucenika-okvir').empty();
+          $('#unos-ucenika-okvir').css("visibility", "hidden");
+        });
+        // deo jQuery skripte koji se odnosi na kalendar i format datuma
+        $('#dateRangePicker')
+        .datepicker({
+          format: 'yyyy-mm-dd',
+          orientation: 'auto bottom',
+          autoclose: true
+          //format: 'dd.mm.yyyy.',
+        });
+      }
+
+      // razmotriti i sledeće (šture, tj. neobrađene) varijante prosleđivanja podataka iz forme:
+      /*
+        $('#dgmDodajUcenGen').click(function(event) {
+          event.preventDefault();
+          if($('#ime').val() == "" || $('#prezime').val() == "") {
+            $('#ispis-poruke-ucen').css({"background-color": "red", "color": "white"}).html("* Obavezno polje.");
+          } else {
+            var idRazred = $('#idRazred').val();
+            var ime = $('#ime').val();
+            var prezime = $('#prezime').val();
+            var ime_oca_majke = $('#ime_oca_majke').val();
+            var datum_rodjenja = $('#datum_rodjenja').val();
+            var mesto_rodjenja = $('#mesto_rodjenja').val();
+            // var ime_slike = $('input[type=file]').val();
+            // formData = 'idRazred=' + idRazred + '&ime=' + ime + '&prezime=' + prezime + '&ime_oca_majke=' + ime_oca_majke + '&datum_rodjenja=' + datum_rodjenja + '&mesto_rodjenja=' + mesto_rodjenja;
+
+        1)
+            $.post('baza/dodavanje_ucenika.php', {
+              idRazred: idRazred,
+              ime: ime,
+              prezime: prezime,
+              ime_oca_majke: ime_oca_majke,
+              datum_rodjenja: datum_rodjenja,
+              mesto_rodjenja: mesto_rodjenja,
+              // imeSlike: ime_slike
+            }, function(podaci) {
+                   $('#ispis-poruke-ucen').css({"background-color": "green", "color": "white"}).html("Učenik je uspešno dodat.");
+                   $('.prazno-polje').val("");
+                   prikazUcenikaGen(idGeneracije, nazivGeneracije);
+            }, 'json');
+
+        2)
+            $.ajax({
+              url: 'baza/dodavanje_ucenika.php',
+              type: 'post',
+              data: {
+                idRazred: idRazred,
+                ime: ime,
+                prezime: prezime,
+                ime_oca_majke: ime_oca_majke,
+                datum_rodjenja: datum_rodjenja,
+                mesto_rodjenja: mesto_rodjenja
+                // formData
+              },
+              success: function(data) {
+                $('#ispis-poruke-ucen').css({"background-color": "green", "color": "white"}).html("Učenik je uspešno dodat.");
+                $('.prazno-polje').val("");
+                prikazUcenikaGen(idGeneracije, nazivGeneracije);
+              }
+            });
+          }
+        });
+      */
+
+      // funkcija za dodavanje/izmenu fotografije na nivou generacije
+      function dodavanje_izmena_fotografije_gen(idGeneracije, nazivGeneracije) {
+        $('#unos-ucenika-okvir').css("visibility", "visible");
+        $('#unos-ucenika-okvir').empty();
+        $('#unos-ucenika-okvir').append('<h2 class="text-center">Generacija <b><span id="naslov-generacija"></span></b></h2><hr><div id="ispis-poruke-ucen" class="text-center" style="margin-bottom: 15px"></div><div class="container"><form id="frmDodavanjeIzmenaSlikeGen" enctype="multipart/form-data"><div class="row" style="margin-left: 35px"><div class="form-group col-md-3" style="margin-right: -100px"><label for="imeSlike">Fotografija:</label><input type="hidden" id="idGeneracija" name="idGeneracija"><input style="width: 150px" type="file" id="imeSlike" class="form-control text-right prazno-polje" name="imeSlike"></div><div class="form-group col-md-3" style="margin-right: -100px"><br><img style="margin-top: 5px; width: 600px; height: auto" id="okvirSlike"></div></div></div><hr><div class="text-right"><input type="button" id="dgmDodajIzmeniSlikuGen" class="btn btn-primary" value="Sačuvaj" style="margin-right: 10px"><input type="button" class="odustani" class="btn btn-default" value="Odustani"></div></form>');
+        $.getJSON("baza/upiti.php", {
+          upit: "generacije_listingID",
+          id: idGeneracije
+        }, function(podaci) {
+          $('#naslov-generacija').html(podaci[0].generacija);
+          $('#idGeneracija').val(podaci[0].id);
+          if(podaci[0].slika == null) {
+            $('#okvirSlike').html("src", "slike/");
+          } else {
+            $('#okvirSlike').attr("src", "slike/" + podaci[0].slika);
+            // alert($('#okvirSlike').css("height")); - ova linija koda prikazuje kolika je visina umanjene fotografije, što pomaže lakšem utvrđivanju toga da li je umanjena fotografija (koja se nalazi u okviru dijaloga za dodavanje/izmenu) proporcionalna neumanjenoj fotografiji (koja se nalazi ispod tabele sa učenicima).
+          }
+        });
+        // funkcija koja klikom na dugme (id = "dgmDodajIzmeniSlikuGen") dodaje/menja fotografiju na nivou generacije
+        $('#dgmDodajIzmeniSlikuGen').click(function(event) {
+          event.preventDefault();
+          $('#frmDodavanjeIzmenaSlikeGen').submit();
+        });
+        // funkcija koja submit-uje formu (id = "frmDodavanjeIzmenaSlikeGen") tako što prikuplja podatke iz forme (vrednosti input-a) i prosleđuje ih ajax-u
+        $('#frmDodavanjeIzmenaSlikeGen').on('submit',(function(e) {
+          e.preventDefault();
+          var formData = new FormData(this);
+          $.ajax({
+            type: 'POST',
+            url: 'baza/dodavanje_izmena_slikeGen.php',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success:function(data){
+              $('#ispis-poruke-ucen').css({"background-color": "green", "color": "white"}).html("Fotografija je uspešno dodata.");
+              $.getJSON("baza/upiti.php", {
+                upit: "generacije_listingSLIKA",
+                id: idGeneracije
+              }, function(podaci) {
+                $('#okvirSlike').attr("src", "slike/" + podaci[0].slika);
+              });
+              prikazUcenikaGen(idGeneracije, nazivGeneracije);
+            },
+            error: function(data){
+              console.log("error");
+              console.log(data);
+            }
+          });
+        }));
+        // funkcija koja klikom na dugme (id = "odustani") zatvara okvir za dodavanje/izmenu fotografije na nivou generacije
+        $('.odustani').click(function() {
+          $('#unos-ucenika-okvir').empty();
+          $('#unos-ucenika-okvir').css("visibility", "hidden");
+        });
+      }
+
+      // funkcija koja u okviru pojedinačne generacije izlistava pripadajuće učenike
+      function prikazUcenikaGen(idGeneracije, nazivGeneracije) {
+        window.scrollTo(0, 0);
+        $('.container-fluid').css("width", "1931.5px");
+        $('#slika-GenRaz-okvir').empty();
+        $.getJSON("baza/upiti.php", {
+          upit: "generacije_listingSLIKA",
+          id: idGeneracije
+        }, function(podaci) {
+          $('#slika-GenRaz-okvir').empty();
+          if(podaci[0].slika == null) {
+            // $('#slika-GenRaz-okvir').empty(); - ova linija koda nije neophodna, jer prazan "if" iskaz znači da, u slučaju ispunjenosti "if" uslova, važi ono što je utvrđeno pre "if"-a, a to je upravo linija koda "$('#slika-GenRaz-okvir').empty();".
+          } else {
+            $('#slika-GenRaz-okvir').append('<img src="slike/'+podaci[0].slika+'" class="img-thumbnail">');
+          }
+        });
+        $('#gen-raz-naslov').html("Generacija " + "<b>"+nazivGeneracije+"</b>");
+        // sledeći način za ispisivanje generacije je pravilniji od "$('#gen-raz-naslov').html("Generacija " + "<b>"+nazivGeneracije+"</b>");" budući da ispisuje generaciju u onom obliku u kom je i uneta u bazu. to znači da će, recimo, generacija "2017-2021" biti ispisana upravo u tom obliku, a ne u obliku "-4", što je slučaj kod načina ispisivanja koji koristi parametar "nazivGeneracije". međutim, s obzirom na to da se korisnik odlučio za to da generaciju unosi u formi jednog broja (npr. "2017"), u ispisivanju generacije služićemo se parametrom "nazivGeneracije".
+        /*
+        $.getJSON("baza/upiti.php", {
+          upit: "generacije_listingID",
+          id: idGeneracije
+        }, function(podaci) {
+          $('#gen-raz-naslov').html("Generacija " + "<b>"+podaci[0].generacija+"</b>");
+        });
+        */
+        $('#ispis-poruke-upis').empty();
+        $('#telo-tabelaUcenici').empty();
+        $("#tabela-ucenici").css("visibility", "visible");
+        // uklanjanje HTML elemenata
+        $('#kolona-prosek').remove();
+        $('#kolona-matematika').remove();
+        $('#polje-razred').remove();
+        // $('#polje-ocene').remove(); - linija koda neophodna za drugi način za prikaz ocena učenika (matematika i prosek).
+        $('.naslov-razredi').remove();
+        $('#poslednja-kolona').remove();
+        // dodavanje HTML elemenata
+        $('#uzglavlje-oceneRaz').append('<th id="polje-razred" class="text-center" style="width: 100px">Razred</th>');
+        $('#uzglavlje-oceneRaz').append('<th id="poslednja-kolona" class="text-center" style="width: 45px"></th>');
+        // $('#uzglavlje-oceneRaz').append('<th id="polje-ocene" class="text-center" colspan="4">Ocene</th>'); - linija koda neophodna za drugi način za prikaz ocena učenika (matematika i prosek).
+        $.getJSON("baza/upiti.php", {
+          upit: "ucenici_listing_gen",
+          idGeneracija: idGeneracije
+        }, function(podaci) {
+          var i = 1;
+          // var idUcenika = podaci[0].id; - jedan način da se dođe do vrednosti id-a učenika. u ovom slučaju kao prvi parametar funkcije "brisanje_ucenika_iz_gen" umesto "vrednost.id" možemo da navedemo varijablu "idUcenika".
+          $.each(podaci, function(kljuc, vrednost) {
+            // var idUcenika = vrednost.id; - drugi način da se dođe do vrednosti id-a učenika. i u ovom slučaju kao prvi parametar bismo mogli da navedemo varijablu "idUcenika".
+            $('#telo-tabelaUcenici').append('<tr id="red'+vrednost.id+'"><td class="text-center" style="vertical-align: middle">'+ i++ +'</td><td class="text-center" style="vertical-align: middle"><img src="slike/'+vrednost.slika+'"></td><td style="vertical-align: middle"><span style="margin-left: 15px">'+vrednost.prezime+'</span><br><span style="margin-left: 40px">'+vrednost.ime+'</span></td><td class="text-center" style="vertical-align: middle">'+vrednost.ime_oca_majke+'</td><td class="text-center" style="vertical-align: middle">'+vrednost.datum_rodjenja+'</td><td class="text-center" style="vertical-align: middle">'+vrednost.mesto_rodjenja+'</td><td><div style="height: 100px; width: 200px; white-space: nowrap; overflow: scroll;">'+vrednost.komentar+'</div></td></tr>');
+            $.getJSON("baza/upiti.php", {
+              upit: "razredi_listing",
+              id: idGeneracije
+            }, function(podaciRazred) {
+              $('.naslov-razredi').remove();
+              $.each(podaciRazred, function(kljucRazred, vrednostRazred) {
+                $('#uzglavlje-oceneRaz').append('<th class="naslov-razredi text-center" style="width: 120px">'+vrednostRazred.odeljenje+'</th>');
+                $('#red' + vrednost.id).append('<td id="polje'+vrednost.id+vrednostRazred.id+'" class="text-center" style="vertical-align: middle"></td>'); // svakom polju predviđenom za upis ocena dodeljujemo dve koordinate: X koordinatu dobijamo od id-a učenika, dok Y koordinatu dobijamo od id-a razreda. na taj način, svako pojedinačno polje ima jedinstvene koordinate što nam omogućava da se svakom od njih posebno "obratimo" prilikom upisa ocena.
+                $('#polje-razred').before($('.naslov-razredi')); // uzglavlje koje sadrži nazive odeljenja smeštamo ispred uzglavlja "Razred" (a samim tim, i ispred uzglavlja poslednje kolone predviđene za izmenu/brisanje učenika) pomoću funkcije before().
+                $('#poljeRazred' + vrednost.id).before($('#polje' + vrednost.id + vrednostRazred.id)); // polje predviđeno za upis ocena smeštamo ispred polja predviđenog za upis učenika u razred (a samim tim, i ispred polja predviđenog za izmenu/brisanje učenika) pomoću funkcije before().
+                $.getJSON("baza/upiti.php", {
+                  upit: "ocene_listing_gen",
+                  idUcenik: vrednost.id
+                }, function(podaciOcene) {
+                  $.each(podaciOcene, function(kljucOcene, vrednostOcene) {
+                    if(vrednostOcene.prosek == null) {
+                      vrednostOcene.prosek = "";
+                    }
+                    if(vrednostOcene.matematika == null) {
+                      vrednostOcene.matematika = "";
+                    }
+                    // ukoliko na nekom polju dolazi do "preklapanja" odeljenja iz upita "ocene_listing_gen" i odeljenja iz upita "razredi_listing", u to polje treba upisati odgovarajuće ocene.
+                    if(vrednostOcene.odeljenje == vrednostRazred.odeljenje) {
+                      $('#polje' + vrednost.id + vrednostRazred.id).html("Prosek: &nbsp<b>"+vrednostOcene.prosek+"</b><hr>"+"Matematika: &nbsp;<b>"+vrednostOcene.matematika+"</b>");
+                    }
+                  });
+                });
+              });
+            });
+
+            // drugi način za prikaz ocena učenika (matematika i prosek). ovaj način, za razliku od prethodnog, ne prikazuje prazna polja u slučajevima kada učenik nije upisan u neki od razreda.
+            /*
+            $.getJSON("baza/upiti.php", {
+              upit: "ocene_listing_gen",
+              idUcenik: vrednost.id
+            }, function(podaciOcene) {
+              $.each(podaciOcene, function(kljucOcene, vrednostOcene) {
+                if(vrednostOcene.prosek == null) {
+                  vrednostOcene.prosek = "";
+                }
+                if(vrednostOcene.matematika == null) {
+                  vrednostOcene.matematika = "";
+                }
+                $('#red' + vrednost.id).append('<td class="text-center" style="vertical-align: middle">Prosek: &nbsp<b>'+vrednostOcene.prosek+'</b><hr>Matematika: &nbsp;<b>'+vrednostOcene.matematika+'</b></td>');
+              });
+            });
+            */
+
+            $('#red' + vrednost.id).append('<td id="poljeRazred'+vrednost.id+'" class="text-center"><select id="'+ vrednost.id +'" class="razred_odabir form-control" name="razred_odabir" style="margin-top: 10px"></select><input type="button" class="btn btn-primary" value="Dodaj" style="margin-top: 13px" onclick="upis_ucenika_u_raz('+vrednost.id+', '+idGeneracije+')"></td><td id="poljeKomande'+vrednost.id+'" class="text-center" style="vertical-align: middle"><span class="btn btn-xs btn-default" data-toggle="tooltip" title="Izmeni" onclick="izmena_ucenika('+vrednost.id+', '+idGeneracije+', '+nazivGeneracije+')">&#128393;</span><br><span style="margin-top: 20px" class="btn btn-xs btn-default" data-toggle="tooltip" title="Obriši" onclick="brisanje_ucenika_iz_gen('+vrednost.id+', '+idGeneracije+', '+nazivGeneracije+')">&#128465;</span></td>');
+          });
+          razred_odabir(idGeneracije);
+        });
+        $('#collapse'+idGeneracije).collapse('show');
+        $('.panel-title > a').attr('data-toggle', '');
+      }
+
+      // funkcija koja dodaje učenika odgovarajućem razredu
+      function upis_ucenika_u_raz(idUcenika, idGeneracije) {
+        if($('#'+idUcenika).val() == "-") {
+          $('#ispis-poruke-upis').css({"background-color": "red", "color": "white"}).html("Niste odabrali razred.");
+        } else {
+          $.getJSON("baza/upiti.php", {
+            upit: "ucenik_dodavanje_u_raz",
+            idUcenik: idUcenika,
+            idRazred: $('#'+idUcenika).val()
+          }, function(podaci) {
+            if(podaci.poruka == "ok") {
+              $('#ispis-poruke-upis').css({"background-color": "green", "color": "white"}).html("Učenik je uspešno dodat.");
+              razred_odabir(idGeneracije);
+            } else if(podaci.poruka == "duplikat") {
+              $('#ispis-poruke-upis').css({"background-color": "red", "color": "white"}).html("Učenik je već dodat u odabrani razred.");
+            }
+          });
+        }
+      }
+
+      // funkcija za dodavanje/izmenu fotografije na nivou razreda
+      function dodavanje_izmena_fotografije_raz(idRazreda, idGeneracije, nazivGeneracije) {
+        $('#unos-ucenika-okvir').css("visibility", "visible");
+        $('#unos-ucenika-okvir').empty();
+        $('#unos-ucenika-okvir').append('<h2 class="text-center">Generacija <b><span id="naslov-generacija"></span></b> / Razred <b><span id="naslov-razred"></span></b></h2><hr><div id="ispis-poruke-ucen" class="text-center" style="margin-bottom: 15px"></div><div class="container"><form id="frmDodavanjeIzmenaSlikeRaz" enctype="multipart/form-data"><div class="row" style="margin-left: 35px"><div class="form-group col-md-3" style="margin-right: -100px"><label for="imeSlike">Fotografija:</label><input type="hidden" id="idGeneracija" name="idGeneracija"><input type="hidden" id="idRazred" name="idRazred"><input style="width: 150px" type="file" id="imeSlike" class="form-control text-right prazno-polje" name="imeSlike"></div><div class="form-group col-md-3" style="margin-right: -100px"><br><img style="margin-top: 5px; width: 600px; height: auto" id="okvirSlike"></div></div></div><hr><div class="text-right"><input type="button" id="dgmDodajIzmeniSlikuRaz" class="btn btn-primary" value="Sačuvaj" style="margin-right: 10px"><input type="button" class="odustani" class="btn btn-default" value="Odustani"></div></form>');
+        $.getJSON("baza/upiti.php", {
+          upit: "razredi_listingID",
+          id: idRazreda
+        }, function(podaci) {
+          $('#naslov-generacija').html(nazivGeneracije);
+          $('#naslov-razred').html(podaci[0].odeljenje);
+          $('#idGeneracija').val(idGeneracije);
+          $('#idRazred').val(podaci[0].id);
+          if(podaci[0].slika == null) {
+            $('#okvirSlike').html("src", "slike/");
+          } else {
+            $('#okvirSlike').attr("src", "slike/" + podaci[0].slika);
+            // alert($('#okvirSlike').css("height")); - ova linija koda prikazuje kolika je visina umanjene fotografije, što pomaže lakšem utvrđivanju toga da li je umanjena fotografija (koja se nalazi u okviru dijaloga za dodavanje/izmenu) proporcionalna neumanjenoj fotografiji (koja se nalazi ispod tabele sa učenicima).
+          }
+        });
+        // funkcija koja klikom na dugme (id = "dgmDodajIzmeniSlikuRaz") dodaje/menja fotografiju na nivou razreda
+        $('#dgmDodajIzmeniSlikuRaz').click(function(event) {
+          event.preventDefault();
+          $('#frmDodavanjeIzmenaSlikeRaz').submit();
+        });
+        // funkcija koja submit-uje formu (id = "frmDodavanjeIzmenaSlikeRaz") tako što prikuplja podatke iz forme (vrednosti input-a) i prosleđuje ih ajax-u
+        $('#frmDodavanjeIzmenaSlikeRaz').on('submit',(function(e) {
+          e.preventDefault();
+          var formData = new FormData(this);
+          $.ajax({
+            type: 'POST',
+            url: 'baza/dodavanje_izmena_slikeRaz.php',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success:function(data){
+              $('#ispis-poruke-ucen').css({"background-color": "green", "color": "white"}).html("Fotografija je uspešno dodata.");
+              $.getJSON("baza/upiti.php", {
+                upit: "razredi_listingSLIKA",
+                id: idRazreda
+              }, function(podaci) {
+                $('#okvirSlike').attr("src", "slike/" + podaci[0].slika);
+              });
+              prikazUcenikaRaz(idRazreda, nazivGeneracije);
+            },
+            error: function(data){
+              console.log("error");
+              console.log(data);
+            }
+          });
+        }));
+        // funkcija koja klikom na dugme (id = "odustani") zatvara okvir za dodavanje/izmenu fotografije na nivou razreda
+        $('.odustani').click(function() {
+          $('#unos-ucenika-okvir').empty();
+          $('#unos-ucenika-okvir').css("visibility", "hidden");
+        });
+      }
+
+      // funkcija koja u okviru pojedinačnog razreda izlistava pripadajuće učenike
+      function prikazUcenikaRaz(idRazreda, nazivGeneracije) {
+        window.scrollTo(0, 0);
+        $('.container-fluid').css("width", "1552px");
+        $('#slika-GenRaz-okvir').empty();
+        $.getJSON("baza/upiti.php", {
+          upit: "razredi_listingID",
+          id: idRazreda
+        }, function(podaci) {
+          $('#gen-raz-naslov').html("Generacija " + "<b>"+nazivGeneracije+"</b>" + " / Razred " + "<b>"+podaci[0].odeljenje+"</b>");
+          $('#slika-GenRaz-okvir').empty();
+          if(podaci[0].slika == null) {
+            // $('#slika-GenRaz-okvir').empty(); - ova linija koda nije neophodna, jer prazan "if" iskaz znači da, u slučaju ispunjenosti "if" uslova, važi ono što je utvrđeno pre "if"-a, a to je upravo linija koda "$('#slika-GenRaz-okvir').empty();".
+          } else {
+            $('#slika-GenRaz-okvir').append('<img src="slike/'+podaci[0].slika+'" class="img-thumbnail">');
+          }
+        });
+        $('#ispis-poruke-upis').empty();
+        $('#telo-tabelaUcenici').empty();
+        $("#tabela-ucenici").css("visibility", "visible");
+        // uklanjanje HTML elemenata
+        $('#kolona-prosek').remove();
+        $('#kolona-matematika').remove();
+        $('#polje-razred').remove();
+        $('.naslov-razredi').remove();
+        $('#poslednja-kolona').remove();
+        // dodavanje HTML elemenata
+        $('#uzglavlje-oceneRaz').append('<th id="kolona-prosek" class="text-center" style="width: 85px; vertical-align: middle"><span>Prosek</span><span style="margin-left: 15px; cursor: pointer; font-size: large" data-toggle="tooltip" title="Sortiraj rastućim redosledom" onclick="prikazUcenikaRaz_rastuceProsek('+idRazreda+', '+nazivGeneracije+')">&#8593;</span></th>');
+        $('#uzglavlje-oceneRaz').append('<th id="kolona-matematika" class="text-center" style="width: 115px; vertical-align: middle"><span>Matematika</span><span style="margin-left: 15px; cursor: pointer; font-size: large" data-toggle="tooltip" title="Sortiraj rastućim redosledom" onclick="prikazUcenikaRaz_rastuceMatematika('+idRazreda+', '+nazivGeneracije+')">&#8593;</span></th>');
+        $('#uzglavlje-oceneRaz').append('<th id="polje-razred" style="width: 45px"></th>');
+        $.getJSON("baza/upiti.php", {
+          upit: "ucenici_listing_raz",
+          idRazred: idRazreda
+        }, function(podaci) {
+          var i = 1;
+          // var idUcenika = podaci[0].id; - jedan način da se dođe do vrednosti id-a učenika. u ovom slučaju kao prvi parametar funkcije "brisanje_ucenika_iz_raz" umesto "vrednost.id" možemo da navedemo varijablu "idUcenika".
+          $.each(podaci, function(kljuc, vrednost) {
+            // var idUcenika = vrednost.id; - drugi način da se dođe do vrednosti id-a učenika. i u ovom slučaju kao prvi parametar bismo mogli da navedemo varijablu "idUcenika".
+            if(vrednost.prosek == null) {
+              vrednost.prosek = "";
+            }
+            if(vrednost.matematika == null) {
+              vrednost.matematika = "";
+            }
+            $('#telo-tabelaUcenici').append('<tr><td class="text-center" style="vertical-align: middle">'+ i++ +'</td><td class="text-center" style="vertical-align: middle"><img src="slike/'+vrednost.slika+'"></td><td style="vertical-align: middle"><span style="margin-left: 15px">'+vrednost.prezime+'</span><br><span style="margin-left: 40px">'+vrednost.ime+'</span></td><td class="text-center" style="vertical-align: middle">'+vrednost.ime_oca_majke+'</td><td class="text-center" style="vertical-align: middle">'+vrednost.datum_rodjenja+'</td><td class="text-center" style="vertical-align: middle">'+vrednost.mesto_rodjenja+'</td><td><div style="height: 100px; width: 200px; white-space: nowrap; overflow: scroll;">'+vrednost.komentar+'</div></td><td class="text-center" style="vertical-align: middle; font-size: large">'+vrednost.prosek+'</td><td class="text-center" style="vertical-align: middle; font-size: large">'+vrednost.matematika+'</td><td class="text-center" style="vertical-align: middle"><span class="btn btn-xs btn-default" data-toggle="tooltip" title="Izmeni fotografiju / belešku" onclick="izmena_slike_beleske('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')">&#128393;</span><br><span style="margin-top: 10px" class="btn btn-xs btn-default" data-toggle="tooltip" title="Dodaj / izmeni ocene" onclick="dodavanje_izmena_ocena('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')"> + </span><br><span style="margin-top: 10px" class="btn btn-xs btn-default" data-toggle="tooltip" title="Obriši" onclick="brisanje_ucenika_iz_raz('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')">&#128465;</span></td></tr>');
+          });
+        });
+      }
+
+      // funkcija koja u okviru pojedinačnog razreda izlistava pripadajuće učenike rastućim redosledom (na osnovu proseka)
+      function prikazUcenikaRaz_rastuceProsek(idRazreda, nazivGeneracije) {
+        $.getJSON("baza/upiti.php", {
+          upit: "razredi_listingID",
+          id: idRazreda
+        }, function(podaci) {
+          $('#gen-raz-naslov').html("Generacija " + "<b>"+nazivGeneracije+"</b>" + " / Razred " + "<b>"+podaci[0].odeljenje+"</b>");
+          $('#slika-GenRaz-okvir').empty();
+          if(podaci[0].slika == null) {
+            // $('#slika-GenRaz-okvir').empty(); - ova linija koda nije neophodna, jer prazan "if" iskaz znači da, u slučaju ispunjenosti "if" uslova, važi ono što je utvrđeno pre "if"-a, a to je upravo linija koda "$('#slika-GenRaz-okvir').empty();".
+          } else {
+            $('#slika-GenRaz-okvir').append('<img src="slike/'+podaci[0].slika+'" class="img-thumbnail">');
+          }
+        });
+        $('#ispis-poruke-upis').empty();
+        $('#telo-tabelaUcenici').empty();
+        $("#tabela-ucenici").css("visibility", "visible");
+        // uklanjanje HTML elemenata
+        $('#kolona-prosek').remove();
+        $('#kolona-matematika').remove();
+        $('#polje-razred').remove();
+        $('.naslov-razredi').remove();
+        $('#poslednja-kolona').remove();
+        // dodavanje HTML elemenata
+        $('#uzglavlje-oceneRaz').append('<th id="kolona-prosek" class="text-center" style="width: 85px; vertical-align: middle"><span>Prosek</span><span style="margin-left: 15px; cursor: pointer; font-size: large" data-toggle="tooltip" title="Sortiraj opadajućim redosledom" onclick="prikazUcenikaRaz_opadajuceProsek('+idRazreda+', '+nazivGeneracije+')">&#8595;</span></th>');
+        $('#uzglavlje-oceneRaz').append('<th id="kolona-matematika" class="text-center" style="width: 115px; vertical-align: middle"><span>Matematika</span><span style="margin-left: 15px; cursor: pointer; font-size: large" data-toggle="tooltip" title="Sortiraj rastućim redosledom" onclick="prikazUcenikaRaz_rastuceMatematika('+idRazreda+', '+nazivGeneracije+')">&#8593;</span></th>');
+        $('#uzglavlje-oceneRaz').append('<th id="polje-razred" style="width: 45px"></th>');
+        $.getJSON("baza/upiti.php", {
+          upit: "ucenici_listing_raz_rastuce_prosek",
+          idRazred: idRazreda
+        }, function(podaci) {
+          var i = 1;
+          // var idUcenika = podaci[0].id; - jedan način da se dođe do vrednosti id-a učenika. u ovom slučaju kao prvi parametar funkcije "brisanje_ucenika_iz_raz" umesto "vrednost.id" možemo da navedemo varijablu "idUcenika".
+          $.each(podaci, function(kljuc, vrednost) {
+            // var idUcenika = vrednost.id; - drugi način da se dođe do vrednosti id-a učenika. i u ovom slučaju kao prvi parametar bismo mogli da navedemo varijablu "idUcenika".
+            if(vrednost.prosek == null) {
+              vrednost.prosek = "";
+            }
+            if(vrednost.matematika == null) {
+              vrednost.matematika = "";
+            }
+            $('#telo-tabelaUcenici').append('<tr><td class="text-center" style="vertical-align: middle">'+ i++ +'</td><td class="text-center" style="vertical-align: middle"><img src="slike/'+vrednost.slika+'"></td><td style="vertical-align: middle"><span style="margin-left: 15px">'+vrednost.prezime+'</span><br><span style="margin-left: 40px">'+vrednost.ime+'</span></td><td class="text-center" style="vertical-align: middle">'+vrednost.ime_oca_majke+'</td><td class="text-center" style="vertical-align: middle">'+vrednost.datum_rodjenja+'</td><td class="text-center" style="vertical-align: middle">'+vrednost.mesto_rodjenja+'</td><td><div style="height: 100px; width: 200px; white-space: nowrap; overflow: scroll;">'+vrednost.komentar+'</div></td><td class="text-center" style="vertical-align: middle; font-size: large">'+vrednost.prosek+'</td><td class="text-center" style="vertical-align: middle; font-size: large">'+vrednost.matematika+'</td><td class="text-center" style="vertical-align: middle"><span class="btn btn-xs btn-default" data-toggle="tooltip" title="Izmeni fotografiju / belešku" onclick="izmena_slike_beleske('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')">&#128393;</span><br><span style="margin-top: 10px" class="btn btn-xs btn-default" data-toggle="tooltip" title="Dodaj / izmeni ocene" onclick="dodavanje_izmena_ocena('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')"> + </span><br><span style="margin-top: 10px" class="btn btn-xs btn-default" data-toggle="tooltip" title="Obriši" onclick="brisanje_ucenika_iz_raz('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')">&#128465;</span></td></tr>');
+          });
+        });
+      }
+
+      // funkcija koja u okviru pojedinačnog razreda izlistava pripadajuće učenike opadajućim redosledom (na osnovu proseka)
+      function prikazUcenikaRaz_opadajuceProsek(idRazreda, nazivGeneracije) {
+        $.getJSON("baza/upiti.php", {
+          upit: "razredi_listingID",
+          id: idRazreda
+        }, function(podaci) {
+          $('#gen-raz-naslov').html("Generacija " + "<b>"+nazivGeneracije+"</b>" + " / Razred " + "<b>"+podaci[0].odeljenje+"</b>");
+          $('#slika-GenRaz-okvir').empty();
+          if(podaci[0].slika == null) {
+            // $('#slika-GenRaz-okvir').empty(); - ova linija koda nije neophodna, jer prazan "if" iskaz znači da, u slučaju ispunjenosti "if" uslova, važi ono što je utvrđeno pre "if"-a, a to je upravo linija koda "$('#slika-GenRaz-okvir').empty();".
+          } else {
+            $('#slika-GenRaz-okvir').append('<img src="slike/'+podaci[0].slika+'" class="img-thumbnail">');
+          }
+        });
+        $('#ispis-poruke-upis').empty();
+        $('#telo-tabelaUcenici').empty();
+        $("#tabela-ucenici").css("visibility", "visible");
+        // uklanjanje HTML elemenata
+        $('#kolona-prosek').remove();
+        $('#kolona-matematika').remove();
+        $('#polje-razred').remove();
+        $('.naslov-razredi').remove();
+        $('#poslednja-kolona').remove();
+        // dodavanje HTML elemenata
+        $('#uzglavlje-oceneRaz').append('<th id="kolona-prosek" class="text-center" style="width: 85px; vertical-align: middle"><span>Prosek</span><span style="margin-left: 15px; cursor: pointer; font-size: large" data-toggle="tooltip" title="Sortiraj rastućim redosledom" onclick="prikazUcenikaRaz_rastuceProsek('+idRazreda+', '+nazivGeneracije+')">&#8593;</span></th>');
+        $('#uzglavlje-oceneRaz').append('<th id="kolona-matematika" class="text-center" style="width: 115px; vertical-align: middle"><span>Matematika</span><span style="margin-left: 15px; cursor: pointer; font-size: large" data-toggle="tooltip" title="Sortiraj rastućim redosledom" onclick="prikazUcenikaRaz_rastuceMatematika('+idRazreda+', '+nazivGeneracije+')">&#8593;</span></th>');
+        $('#uzglavlje-oceneRaz').append('<th id="polje-razred" style="width: 45px"></th>');
+        $.getJSON("baza/upiti.php", {
+          upit: "ucenici_listing_raz_opadajuce_prosek",
+          idRazred: idRazreda
+        }, function(podaci) {
+          var i = 1;
+          // var idUcenika = podaci[0].id; - jedan način da se dođe do vrednosti id-a učenika. u ovom slučaju kao prvi parametar funkcije "brisanje_ucenika_iz_raz" umesto "vrednost.id" možemo da navedemo varijablu "idUcenika".
+          $.each(podaci, function(kljuc, vrednost) {
+            // var idUcenika = vrednost.id; - drugi način da se dođe do vrednosti id-a učenika. i u ovom slučaju kao prvi parametar bismo mogli da navedemo varijablu "idUcenika".
+            if(vrednost.prosek == null) {
+              vrednost.prosek = "";
+            }
+            if(vrednost.matematika == null) {
+              vrednost.matematika = "";
+            }
+            $('#telo-tabelaUcenici').append('<tr><td class="text-center" style="vertical-align: middle">'+ i++ +'</td><td class="text-center" style="vertical-align: middle"><img src="slike/'+vrednost.slika+'"></td><td style="vertical-align: middle"><span style="margin-left: 15px">'+vrednost.prezime+'</span><br><span style="margin-left: 40px">'+vrednost.ime+'</span></td><td class="text-center" style="vertical-align: middle">'+vrednost.ime_oca_majke+'</td><td class="text-center" style="vertical-align: middle">'+vrednost.datum_rodjenja+'</td><td class="text-center" style="vertical-align: middle">'+vrednost.mesto_rodjenja+'</td><td><div style="height: 100px; width: 200px; white-space: nowrap; overflow: scroll;">'+vrednost.komentar+'</div></td><td class="text-center" style="vertical-align: middle; font-size: large">'+vrednost.prosek+'</td><td class="text-center" style="vertical-align: middle; font-size: large">'+vrednost.matematika+'</td><td class="text-center" style="vertical-align: middle"><span class="btn btn-xs btn-default" data-toggle="tooltip" title="Izmeni fotografiju / belešku" onclick="izmena_slike_beleske('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')">&#128393;</span><br><span style="margin-top: 10px" class="btn btn-xs btn-default" data-toggle="tooltip" title="Dodaj / izmeni ocene" onclick="dodavanje_izmena_ocena('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')"> + </span><br><span style="margin-top: 10px" class="btn btn-xs btn-default" data-toggle="tooltip" title="Obriši" onclick="brisanje_ucenika_iz_raz('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')">&#128465;</span></td></tr>');
+          });
+        });
+      }
+
+      // funkcija koja u okviru pojedinačnog razreda izlistava pripadajuće učenike rastućim redosledom (na osnovu ocene iz matematike)
+      function prikazUcenikaRaz_rastuceMatematika(idRazreda, nazivGeneracije) {
+        $.getJSON("baza/upiti.php", {
+          upit: "razredi_listingID",
+          id: idRazreda
+        }, function(podaci) {
+          $('#gen-raz-naslov').html("Generacija " + "<b>"+nazivGeneracije+"</b>" + " / Razred " + "<b>"+podaci[0].odeljenje+"</b>");
+          $('#slika-GenRaz-okvir').empty();
+          if(podaci[0].slika == null) {
+            // $('#slika-GenRaz-okvir').empty(); - ova linija koda nije neophodna, jer prazan "if" iskaz znači da, u slučaju ispunjenosti "if" uslova, važi ono što je utvrđeno pre "if"-a, a to je upravo linija koda "$('#slika-GenRaz-okvir').empty();".
+          } else {
+            $('#slika-GenRaz-okvir').append('<img src="slike/'+podaci[0].slika+'" class="img-thumbnail">');
+          }
+        });
+        $('#ispis-poruke-upis').empty();
+        $('#telo-tabelaUcenici').empty();
+        $("#tabela-ucenici").css("visibility", "visible");
+        // uklanjanje HTML elemenata
+        $('#kolona-prosek').remove();
+        $('#kolona-matematika').remove();
+        $('#polje-razred').remove();
+        $('.naslov-razredi').remove();
+        $('#poslednja-kolona').remove();
+        // dodavanje HTML elemenata
+        $('#uzglavlje-oceneRaz').append('<th id="kolona-prosek" class="text-center" style="width: 85px; vertical-align: middle"><span>Prosek</span><span style="margin-left: 15px; cursor: pointer; font-size: large" data-toggle="tooltip" title="Sortiraj rastućim redosledom" onclick="prikazUcenikaRaz_rastuceProsek('+idRazreda+', '+nazivGeneracije+')">&#8593;</span></th>');
+        $('#uzglavlje-oceneRaz').append('<th id="kolona-matematika" class="text-center" style="width: 115px; vertical-align: middle"><span>Matematika</span><span style="margin-left: 15px; cursor: pointer; font-size: large" data-toggle="tooltip" title="Sortiraj opadajućim redosledom" onclick="prikazUcenikaRaz_opadajuceMatematika('+idRazreda+', '+nazivGeneracije+')">&#8595;</span></th>');
+        $('#uzglavlje-oceneRaz').append('<th id="polje-razred" style="width: 45px"></th>');
+        $.getJSON("baza/upiti.php", {
+          upit: "ucenici_listing_raz_rastuce_matematika",
+          idRazred: idRazreda
+        }, function(podaci) {
+          var i = 1;
+          // var idUcenika = podaci[0].id; - jedan način da se dođe do vrednosti id-a učenika. u ovom slučaju kao prvi parametar funkcije "brisanje_ucenika_iz_raz" umesto "vrednost.id" možemo da navedemo varijablu "idUcenika".
+          $.each(podaci, function(kljuc, vrednost) {
+            // var idUcenika = vrednost.id; - drugi način da se dođe do vrednosti id-a učenika. i u ovom slučaju kao prvi parametar bismo mogli da navedemo varijablu "idUcenika".
+            if(vrednost.prosek == null) {
+              vrednost.prosek = "";
+            }
+            if(vrednost.matematika == null) {
+              vrednost.matematika = "";
+            }
+            $('#telo-tabelaUcenici').append('<tr><td class="text-center" style="vertical-align: middle">'+ i++ +'</td><td class="text-center" style="vertical-align: middle"><img src="slike/'+vrednost.slika+'"></td><td style="vertical-align: middle"><span style="margin-left: 15px">'+vrednost.prezime+'</span><br><span style="margin-left: 40px">'+vrednost.ime+'</span></td><td class="text-center" style="vertical-align: middle">'+vrednost.ime_oca_majke+'</td><td class="text-center" style="vertical-align: middle">'+vrednost.datum_rodjenja+'</td><td class="text-center" style="vertical-align: middle">'+vrednost.mesto_rodjenja+'</td><td><div style="height: 100px; width: 200px; white-space: nowrap; overflow: scroll;">'+vrednost.komentar+'</div></td><td class="text-center" style="vertical-align: middle; font-size: large">'+vrednost.prosek+'</td><td class="text-center" style="vertical-align: middle; font-size: large">'+vrednost.matematika+'</td><td class="text-center" style="vertical-align: middle"><span class="btn btn-xs btn-default" data-toggle="tooltip" title="Izmeni fotografiju / belešku" onclick="izmena_slike_beleske('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')">&#128393;</span><br><span style="margin-top: 10px" class="btn btn-xs btn-default" data-toggle="tooltip" title="Dodaj / izmeni ocene" onclick="dodavanje_izmena_ocena('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')"> + </span><br><span style="margin-top: 10px" class="btn btn-xs btn-default" data-toggle="tooltip" title="Obriši" onclick="brisanje_ucenika_iz_raz('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')">&#128465;</span></td></tr>');
+          });
+        });
+      }
+
+      // funkcija koja u okviru pojedinačnog razreda izlistava pripadajuće učenike opadajućim redosledom (na osnovu ocene iz matematike)
+      function prikazUcenikaRaz_opadajuceMatematika(idRazreda, nazivGeneracije) {
+        $.getJSON("baza/upiti.php", {
+          upit: "razredi_listingID",
+          id: idRazreda
+        }, function(podaci) {
+          $('#gen-raz-naslov').html("Generacija " + "<b>"+nazivGeneracije+"</b>" + " / Razred " + "<b>"+podaci[0].odeljenje+"</b>");
+          $('#slika-GenRaz-okvir').empty();
+          if(podaci[0].slika == null) {
+            // $('#slika-GenRaz-okvir').empty(); - ova linija koda nije neophodna, jer prazan "if" iskaz znači da, u slučaju ispunjenosti "if" uslova, važi ono što je utvrđeno pre "if"-a, a to je upravo linija koda "$('#slika-GenRaz-okvir').empty();".
+          } else {
+            $('#slika-GenRaz-okvir').append('<img src="slike/'+podaci[0].slika+'" class="img-thumbnail">');
+          }
+        });
+        $('#ispis-poruke-upis').empty();
+        $('#telo-tabelaUcenici').empty();
+        $("#tabela-ucenici").css("visibility", "visible");
+        // uklanjanje HTML elemenata
+        $('#kolona-prosek').remove();
+        $('#kolona-matematika').remove();
+        $('#polje-razred').remove();
+        $('.naslov-razredi').remove();
+        $('#poslednja-kolona').remove();
+        // dodavanje HTML elemenata
+        $('#uzglavlje-oceneRaz').append('<th id="kolona-prosek" class="text-center" style="width: 85px; vertical-align: middle"><span>Prosek</span><span style="margin-left: 15px; cursor: pointer; font-size: large" data-toggle="tooltip" title="Sortiraj rastućim redosledom" onclick="prikazUcenikaRaz_rastuceProsek('+idRazreda+', '+nazivGeneracije+')">&#8593;</span></th>');
+        $('#uzglavlje-oceneRaz').append('<th id="kolona-matematika" class="text-center" style="width: 115px; vertical-align: middle"><span>Matematika</span><span style="margin-left: 15px; cursor: pointer; font-size: large" data-toggle="tooltip" title="Sortiraj rastućim redosledom" onclick="prikazUcenikaRaz_rastuceMatematika('+idRazreda+', '+nazivGeneracije+')">&#8593;</span></th>');
+        $('#uzglavlje-oceneRaz').append('<th id="polje-razred" style="width: 45px"></th>');
+        $.getJSON("baza/upiti.php", {
+          upit: "ucenici_listing_raz_opadajuce_matematika",
+          idRazred: idRazreda
+        }, function(podaci) {
+          var i = 1;
+          // var idUcenika = podaci[0].id; - jedan način da se dođe do vrednosti id-a učenika. u ovom slučaju kao prvi parametar funkcije "brisanje_ucenika_iz_raz" umesto "vrednost.id" možemo da navedemo varijablu "idUcenika".
+          $.each(podaci, function(kljuc, vrednost) {
+            // var idUcenika = vrednost.id; - drugi način da se dođe do vrednosti id-a učenika. i u ovom slučaju kao prvi parametar bismo mogli da navedemo varijablu "idUcenika".
+            if(vrednost.prosek == null) {
+              vrednost.prosek = "";
+            }
+            if(vrednost.matematika == null) {
+              vrednost.matematika = "";
+            }
+            $('#telo-tabelaUcenici').append('<tr><td class="text-center" style="vertical-align: middle">'+ i++ +'</td><td class="text-center" style="vertical-align: middle"><img src="slike/'+vrednost.slika+'"></td><td style="vertical-align: middle"><span style="margin-left: 15px">'+vrednost.prezime+'</span><br><span style="margin-left: 40px">'+vrednost.ime+'</span></td><td class="text-center" style="vertical-align: middle">'+vrednost.ime_oca_majke+'</td><td class="text-center" style="vertical-align: middle">'+vrednost.datum_rodjenja+'</td><td class="text-center" style="vertical-align: middle">'+vrednost.mesto_rodjenja+'</td><td><div style="height: 100px; width: 200px; white-space: nowrap; overflow: scroll;">'+vrednost.komentar+'</div></td><td class="text-center" style="vertical-align: middle; font-size: large">'+vrednost.prosek+'</td><td class="text-center" style="vertical-align: middle; font-size: large">'+vrednost.matematika+'</td><td class="text-center" style="vertical-align: middle"><span class="btn btn-xs btn-default" data-toggle="tooltip" title="Izmeni fotografiju / belešku" onclick="izmena_slike_beleske('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')">&#128393;</span><br><span style="margin-top: 10px" class="btn btn-xs btn-default" data-toggle="tooltip" title="Dodaj / izmeni ocene" onclick="dodavanje_izmena_ocena('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')"> + </span><br><span style="margin-top: 10px" class="btn btn-xs btn-default" data-toggle="tooltip" title="Obriši" onclick="brisanje_ucenika_iz_raz('+vrednost.id+', '+idRazreda+', '+nazivGeneracije+')">&#128465;</span></td></tr>');
+          });
+        });
+      }
+
+      // funkcija za izmenu fotografije učenika (na nivou pojedinačnog razreda) i/ili beleške o učeniku (na nivou generacije)
+      function izmena_slike_beleske(idUcenika, idRazreda, nazivGeneracije) {
+        window.scrollTo(0, 0);
+        $('#unos-ucenika-okvir').css("visibility", "visible");
+        $('#unos-ucenika-okvir').empty();
+        $('#unos-ucenika-okvir').append('<h2 class="text-center"><b><span id="naslov-ime-prezime"></span></b></h2><hr><div id="ispis-poruke-ucen" class="text-center" style="margin-bottom: 15px"></div><div class="container"><form id="frmIzmenaSlikeBeleske" enctype="multipart/form-data"><div class="row" style="margin-left: 35px"><div class="form-group col-md-3" style="margin-right: -100px"><label for="imeSlike">Fotografija:</label><input type="hidden" id="idUcenik" name="idUcenik"><input type="hidden" id="idRazred" name="idRazred"><input style="width: 150px" type="file" id="imeSlike" class="form-control text-right prazno-polje" name="imeSlike"><br><img id="okvirSlike"></div><div class="form-group col-md-3" style="margin-right: -100px"><label for="beleska">Beleška:</label><textarea style="width: 380px" type="text" id="beleska" class="form-control prazno-polje" name="beleska" rows="4"></textarea></div></div></div><hr><div class="text-right"><input type="button" id="dgmIzmeniSlikuBelesku" class="btn btn-primary" value="Sačuvaj" style="margin-right: 10px"><input type="button" class="odustani" class="btn btn-default" value="Odustani"></div></form>');
+        $.getJSON("baza/upiti.php", {
+          upit: "ucenici_listingID",
+          id: idUcenika
+        }, function(podaci) {
+          $.getJSON("baza/upiti.php", {
+            upit: "ucenici_razredi_listingID",
+            idUcenik: idUcenika,
+            idRazred: idRazreda
+          }, function(podaciRaz) {
+            $('#naslov-ime-prezime').html(podaci[0].ime+ ' ' +podaci[0].prezime);
+            $('#idUcenik').val(idUcenika);
+            $('#idRazred').val(idRazreda);
+            $('#okvirSlike').attr("src", "slike/" + podaciRaz[0].slika);
+            var beleska = podaci[0].komentar;
+            var beleskaBezTagova = beleska.replace(/(<([^>]+)>)/ig,""); // funkcija "replace(/(<([^>]+)>)/ig,"")" sprečava da se u polju za izmenu beleške o učeniku pojavljuje "br" tag (<br />) tako što menja "br" tag (kao i bilo koji drugi tag) praznim string-om.
+            $('#beleska').html(beleskaBezTagova);
+            //$("#beleska").text().replace('<br />', ''); - ova linija koda bi uklonila samo prvo pojavljivanje "br" taga u tekstu beleške, dok bi ostali "br" tagovi ostali netaknuti.
+          });
+        });
+        // funkcija koja klikom na dugme (id = "dgmIzmeniSlikuBelesku") menja fotografiju učenika i/ili belešku o učeniku
+        $('#dgmIzmeniSlikuBelesku').click(function(event) {
+          event.preventDefault();
+          $('#frmIzmenaSlikeBeleske').submit();
+        });
+        // funkcija koja submit-uje formu (id = "frmIzmenaSlikeBeleske") tako što prikuplja podatke iz forme (vrednosti input-a) i prosleđuje ih ajax-u
+        $('#frmIzmenaSlikeBeleske').on('submit',(function(e) {
+          e.preventDefault();
+          var formData = new FormData(this);
+          $.ajax({
+            type: 'POST',
+            url: 'baza/izmena_slikeRaz_beleskeGen.php',
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success:function(data){
+              $('#ispis-poruke-ucen').css({"background-color": "green", "color": "white"}).html("Podaci su uspešno izmenjeni.");
+              $.getJSON("baza/upiti.php", {
+                upit: "ucenici_razredi_listingSLIKA",
+                idUcenik: idUcenika,
+                idRazred: idRazreda
+              }, function(podaci) {
+                $('#okvirSlike').attr("src", "slike/" + podaci[0].slika);
+              });
+              prikazUcenikaRaz(idRazreda, nazivGeneracije);
+            },
+            error: function(data){
+              console.log("error");
+              console.log(data);
+            }
+          });
+        }));
+        // funkcija koja klikom na dugme (id = "odustani") zatvara okvir za izmenu fotografije učenika i/ili beleške o učeniku
+        $('.odustani').click(function() {
+          $('#unos-ucenika-okvir').empty();
+          $('#unos-ucenika-okvir').css("visibility", "hidden");
+        });
+      }
+
+      // funkcija za dodavanje/izmenu ocena učenika (matematika i prosek)
+      function dodavanje_izmena_ocena(idUcenika, idRazreda, nazivGeneracije) {
+        window.scrollTo(0, 0);
+        $('#unos-ucenika-okvir').css("visibility", "visible");
+        $('#unos-ucenika-okvir').empty();
+        $('#unos-ucenika-okvir').append('<h2 class="text-center"><b><span id="naslov-ime-prezime"></span></b></h2><hr><div id="ispis-poruke-ucen" class="text-center" style="margin-bottom: 15px"></div><div class="container"><div class="row" style="margin-left: 35px"><div class="form-group col-md-3" style="margin-right: -120px"><label for="prosek">Prosek:</label><input style="width: 100px" type="number" id="prosek" class="form-control text-center prazno-polje" name="prosek"></div><div class="form-group col-md-3"><label for="matematika">Matematika:</label><input style="width: 100px" type="number" id="matematika" class="form-control text-center prazno-polje" name="matematika"></div></div></div><hr><div class="text-right"><input type="button" id="dgmDodajIzmeniOcene" class="btn btn-primary" value="Sačuvaj" style="margin-right: 10px"><input type="button" class="odustani" class="btn btn-default" value="Odustani"></div>');
+        $.getJSON("baza/upiti.php", {
+          upit: "ucenici_listingID",
+          id: idUcenika,
+        }, function(podaci) {
+          $.getJSON("baza/upiti.php", {
+            upit: "ucenici_razredi_listingID",
+            idUcenik: idUcenika,
+            idRazred: idRazreda
+          }, function(podaciRaz) {
+            $('#naslov-ime-prezime').html(podaci[0].ime+ ' ' +podaci[0].prezime);
+            $('#matematika').val(podaciRaz[0].matematika);
+            $('#prosek').val(podaciRaz[0].prosek);
+          });
+          // funkcija koja klikom na dugme (id = "dgmDodajIzmeniOcene") dodaje/menja ocene učenika (matematika i prosek)
+          $('#dgmDodajIzmeniOcene').click(function(event) {
+            event.preventDefault();
+            if($('#matematika').val() == "" || $('#prosek').val() == "") {
+              $('#matematika').css("border", "");
+              $('#prosek').css("border", "");
+              $('#ispis-poruke-ucen').css({"background-color": "red", "color": "white"}).html("Niste uneli vrednost.");
+              if($('#matematika').val() == "") {
+                $('#matematika').css("border", "1px solid red");
+              }
+              if($('#prosek').val() == "") {
+                $('#prosek').css("border", "1px solid red");
+              }
+            } else {
+              $.getJSON("baza/upiti.php", {
+                upit: "ocene_izmena",
+                idUcenik: idUcenika,
+                idRazred: idRazreda,
+                matematika: $('#matematika').val(),
+                prosek: $('#prosek').val()
+              }, function(podaci) {
+                $('#ispis-poruke-ucen').css({"background-color": "green", "color": "white"}).html("Podaci su uspešno izmenjeni.");
+                prikazUcenikaRaz(idRazreda, nazivGeneracije);
+              });
+            }
+          });
+        });
+        // funkcija koja klikom na dugme (id = "odustani") zatvara okvir za dodavanje/izmenu ocena učenika (matematika i prosek)
+        $('.odustani').click(function() {
+          $('#unos-ucenika-okvir').empty();
+          $('#unos-ucenika-okvir').css("visibility", "hidden");
+        });
+      }
+
+      // funkcija za izmenu učenika
+      function izmena_ucenika(idUcenika, idGeneracije, nazivGeneracije) {
+        window.scrollTo(0, 0);
+        $('#unos-ucenika-okvir').css("visibility", "visible");
+        $('#unos-ucenika-okvir').empty();
+        $.getJSON("baza/upiti.php", {
+          upit: "ucenici_listingID",
+          id: idUcenika
+        }, function(podaci) {
+          var beleska = podaci[0].komentar;
+          var beleskaBezTagova = beleska.replace(/(<([^>]+)>)/ig,""); // funkcija "replace(/(<([^>]+)>)/ig,"")" sprečava da se u polju za izmenu beleške o učeniku pojavljuje "br" tag (<br />) tako što menja "br" tag (kao i bilo koji drugi tag) praznim string-om.
+          $('#unos-ucenika-okvir').append('<h2 class="text-center"><b>'+podaci[0].ime+ ' ' +podaci[0].prezime+'</b></h2><hr><div id="ispis-poruke-ucen" class="text-center" style="margin-bottom: 15px"></div><div class="container"><form id="frmIzmenaUcenikaGen" enctype="multipart/form-data"><div class="row" style="margin-left: 35px"><div class="form-group col-md-3" style="margin-right: -100px"><label for="ime">Ime<span style="color: red">*</span>:</label><input type="hidden" id="idUcenik" name="idUcenik" value="'+podaci[0].id+'"><input style="width: 150px" type="text" id="ime" class="form-control text-right prazno-polje" name="ime" value="'+podaci[0].ime+'"></div><div class="form-group col-md-3" style="margin-right: -100px"><label for="prezime">Prezime<span style="color: red">*</span>:</label><input style="width: 150px" type="text" id="prezime" class="form-control text-right prazno-polje" name="prezime" value="'+podaci[0].prezime+'"></div><div class="form-group col-md-3" style="margin-right: -50px"><label for="ime_oca_majke">Ime oca / majke:</label><input style="width: 200px" type="text" id="ime_oca_majke" class="form-control text-right prazno-polje" name="ime_oca_majke" value="'+podaci[0].ime_oca_majke+'"></div><div class="form-group col-md-3"><label for="datum_rodjenja">Datum rođenja<span style="color: red">*</span>:</label><div class="input-group input-append date" id="dateRangePicker" style="width: 150px"><input type="text" id="datum_rodjenja" name="datum_rodjenja" class="form-control text-center prazno-polje" value="'+podaci[0].datum_rodjenja+'"><span class="input-group-addon add-on"><span>&#128197;</span></span></div></div></div><div class="row" style="margin-left: 35px"><div class="form-group col-md-3" style="margin-right: -100px"><label for="mesto_rodjenja">Mesto rođenja:</label><input style="width: 150px" type="text" id="mesto_rodjenja" class="form-control text-right prazno-polje" name="mesto_rodjenja" value="'+podaci[0].mesto_rodjenja+'"></div><div class="form-group col-md-3" style="margin-right: -100px"><label for="imeSlike">Fotografija:</label><input style="width: 150px" type="file" id="imeSlike" class="form-control text-right prazno-polje" name="imeSlike"><br><img id="okvirSlike" src="slike/'+podaci[0].slika+'"></div><div class="form-group col-md-3" style="margin-right: -100px"><label for="beleska">Beleška:</label><textarea style="width: 380px" type="text" id="beleska" class="form-control prazno-polje" name="beleska" rows="4">'+beleskaBezTagova+'</textarea></div></div></div><hr><div class="text-right"><input type="button" id="dgmIzmeniUcenGen" class="btn btn-primary" value="Sačuvaj" style="margin-right: 10px"><input type="button" class="odustani" class="btn btn-default" value="Odustani"></div></form>');
+          // ovo je moguće uraditi i na standardan način, pozivanjem elemenata forme i dodeljivanjem vrednosti (kao što je urađeno u slučaju ostalih izmena), pri čemu bi linija koda vezana za sliku izgledala: $('#okvirSlike').attr("src", "slike/" + podaci[0].slika);
+          // funkcija koja klikom na dugme (id = "dgmIzmeniUcenGen") menja podatke o učeniku
+          $('#dgmIzmeniUcenGen').click(function(event) {
+            event.preventDefault();
+            if($('#ime').val() == "" || $('#prezime').val() == "" || $('#datum_rodjenja').val() == "") {
+              $('#ime').css("border", "");
+              $('#prezime').css("border", "");
+              $('#datum_rodjenja').css("border", "");
+              $('#ispis-poruke-ucen').css({"background-color": "red", "color": "white"}).html("* Obavezno polje.");
+              if($('#ime').val() == "") {
+                $('#ime').css("border", "1px solid red");
+              }
+              if($('#prezime').val() == "") {
+                $('#prezime').css("border", "1px solid red");
+              }
+              if($('#datum_rodjenja').val() == "") {
+                $('#datum_rodjenja').css("border", "1px solid red");
+              }
+            } else {
+              $('#ime').css("border", "");
+              $('#prezime').css("border", "");
+              $('#datum_rodjenja').css("border", "");
+              $('#frmIzmenaUcenikaGen').submit();
+            }
+          });
+          // funkcija koja submit-uje formu (id = "frmIzmenaUcenikaGen") tako što prikuplja podatke iz forme (vrednosti input-a) i prosleđuje ih ajax-u
+          $('#frmIzmenaUcenikaGen').on('submit',(function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+              type: 'POST',
+              url: 'baza/izmena_ucenika.php',
+              data: formData,
+              cache: false,
+              contentType: false,
+              processData: false,
+              success:function(data){
+                $('#ispis-poruke-ucen').css({"background-color": "green", "color": "white"}).html("Podaci su uspešno izmenjeni.");
+                $.getJSON("baza/upiti.php", {
+                  upit: "ucenici_listingSLIKA",
+                  id: idUcenika
+                }, function(podaci) {
+                  $('#okvirSlike').attr("src", "slike/" + podaci[0].slika);
+                });
+                prikazUcenikaGen(idGeneracije, nazivGeneracije);
+              },
+              error: function(data){
+                console.log("error");
+                console.log(data);
+              }
+            });
+          }));
+          // funkcija koja klikom na dugme (id = "odustani") zatvara okvir za izmenu učenika
+          $('.odustani').click(function() {
+            $('#unos-ucenika-okvir').empty();
+            $('#unos-ucenika-okvir').css("visibility", "hidden");
+          });
+          // deo jQuery skripte koji se odnosi na kalendar i format datuma
+          $('#dateRangePicker')
+          .datepicker({
+            format: 'yyyy-mm-dd',
+            orientation: 'auto bottom',
+            autoclose: true
+            //format: 'dd.mm.yyyy.',
+          });
+        });
+      }
+
+      // funkcija koja briše učenika iz odgovarajuće generacije
+      function brisanje_ucenika_iz_gen(idUcenika, idGeneracije, nazivGeneracije) {
+        if(confirm("Da li ste sigurni?")) {
+          $.getJSON("baza/upiti.php", {
+            upit: "ucenik_brisanje_iz_gen",
+            id: idUcenika,
+            idGeneracija: idGeneracije
+          }, function(podaci) {
+            prikazUcenikaGen(idGeneracije, nazivGeneracije);
+          });
+        }
+      }
+
+      // sledeći kodovi su alternative prethodnom i oni brišu učenika iz odgovarajuće generacije pomoću "post" metode. za ove alternative je neophodno postojanje fajla "brisanje_ucenika_iz_gen.php".
+      /*
+      1)
+        function brisanje_ucenika_iz_gen(idUcenika, idGeneracije) {
+          if(confirm("Da li ste sigurni?")) {
+            $.post('baza/brisanje_ucenika_iz_gen.php', {
+              id: idUcenika,
+              idGeneracija: idGeneracije
+            }, function(podaci) {
+              prikazUcenikaGen(idGeneracije);
+            }, 'json');
+          }
+        }
+
+      2)
+        function brisanje_ucenika_iz_gen(idUcenika, idGeneracije) {
+          if(confirm("Da li ste sigurni?")) {
+            $.ajax({
+              url: 'baza/brisanje_ucenika_iz_gen.php',
+              type: 'post',
+              data: {
+                id: idUcenika,
+                idGeneracija: idGeneracije
+              },
+              success: function(data) {
+                prikazUcenikaGen(idGeneracije);
+              }
+            });
+          }
+        }
+      */
+
+      // funkcija koja briše učenika iz odgovarajućeg razreda
+      function brisanje_ucenika_iz_raz(idUcenika, idRazreda, nazivGeneracije) {
+        if(confirm("Da li ste sigurni?")) {
+          $.getJSON("baza/upiti.php", {
+            upit: "ucenik_brisanje_iz_raz",
+            idUcenik: idUcenika,
+            idRazred: idRazreda
+          }, function(podaci) {
+            prikazUcenikaRaz(idRazreda, nazivGeneracije);
+          });
+        }
+      }
+
+      // funkcija koja menja "disabled" svojstvo dugmeta (id = "dgmPretragaUcenika") zavisno od toga da li je polje za pretragu prazno ("disabled" = true; na dugme nije moguće kliknuti) ili ne ("disabled" = false; na dugme je moguće kliknuti). po default-u, "disabled" svojstvo je definisano kao true (disabled = "disabled").
+      $('#poljePretragaUcenika').keyup(function() {
+        if($(this).val() == "") {
+          $('#dgmPretragaUcenika').prop("disabled", true);
+        } else {
+          $('#dgmPretragaUcenika').prop("disabled", false);
+        }
+      });
+
+      // funkcija koja prazni polje za pretragu prilikom povratka sa stranice "pretraga.php" na stranicu na kojoj je izvršena pretraga. budući da ne prikupljamo podatke iz forme (vrednosti input-a) kako bismo ih prosledili ajax-u, nepotrebne parametre stavljamo pod komentar.
+      // radi dodatne sigurnosti, komanda za pražnjenje polja za pretragu nalazi se i unutar funkcije koja se izvršava prilikom učitavanja stranice.
+      function poljePretragaPrazno() {
+        $.ajax({
+          // url: 'pretraga.php',
+          // type: 'get',
+          // data: {
+          //   pretraga_vrednost: $('#poljePretragaUcenika').val()
+          // },
+          success: function(data) {
+            $('#poljePretragaUcenika').val("");
+          },
+          error: function(data) {
+            console.log("error");
+            console.log(data);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

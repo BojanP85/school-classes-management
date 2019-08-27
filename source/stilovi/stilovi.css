@@ -1,0 +1,14 @@
+body {
+  padding: 50px;  
+}
+
+#dugmiciGen {
+  margin-top: -2px;
+}
+
+div.poljeBeleska {
+  /* width: 600px; */
+  height: 20px;
+  white-space: nowrap;
+  overflow: scroll;
+}
